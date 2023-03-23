@@ -6,12 +6,164 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum Role {
+  User
+  Admin
+}
+
+enum Group {
+  Public
+  Followers
+  Unlisted
+  Private
+  Hidden
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  role       Role     @default(User)
+  visibility Group    @default(Followers)
+
   email     String  @unique
   password  String
+  firstName String
+  lastName  String?
+  theme     String?
+  language  String?
+  timezone  String?
+  bio       String?
+  website   String?
+
+  photos        Photo[]
+  albums        Album[]
+  tags          Tag[]
+  cameras       Camera[]
+  lenses        Lens[]
+  notifications Notification[]
+}
+
+model Photo {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  visibility Group    @default(Followers)
+
+  store        String
+  fileName     String
+  md5          String  @unique
+  sha1         String  @unique
+  name         String?
+  description  String?
+  aperture     String?
+  shutterSpeed String?
+  focalLength  String?
+  iso          String?
+
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     String?
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id])
+  cameraId   String?
+  camera     Camera?   @relation(fields: [cameraId], references: [id])
+  lensId     String?
+  lens       Lens?     @relation(fields: [lensId], references: [id])
+
+  albums Album[]
+  tags   Tag[]
+}
+
+model Album {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  visibility Group    @default(Followers)
+
+  name        String?
+  description String?
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  photos Photo[]
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name String @unique
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  photos Photo[]
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name         String
+  coordinates  String?
+  locationType String?
+
+  photos Photo[]
+}
+
+model Camera {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  make  String
+  model String
+  year  Int?
+  mount String?
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  photos Photo[]
+}
+
+model Lens {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  make           String
+  model          String?
+  year           Int?
+  mount          String?
+  minAperture    Int
+  maxAperture    Int
+  minFocalLength Int
+  maxFocalLength Int
+
+  user   User?   @relation(fields: [userId], references: [id])
+  userId String?
+
+  photos Photo[]
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  type    String
+  message String
+  read    Boolean
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }
