@@ -36,7 +36,7 @@ export function Button(props: ButtonProps) {
   );
 }
 
-export function Select(props: SelectProps & {label: string; options: OptionProps[]}) {
+export function Select(props: SelectProps & {label: string}) {
   return (
     <>
       <label htmlFor={props.name}>{props.label}</label>
@@ -46,11 +46,6 @@ export function Select(props: SelectProps & {label: string; options: OptionProps
         placeholder={props.placeholder}
         className="py-1 px-2 mb-8 w-72 block border rounded-md border-stone-200 bg-white"
       >
-        {props.options.map((option) => (
-          <option value={option.value}>
-            {option.label}
-          </option>
-        ))}
       </select>
     </>
   );
