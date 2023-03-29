@@ -8,11 +8,14 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 enum Role {
   User
+  Artist
+  Photographer
+  Videographer
+  Editor
   Admin
 }
 
@@ -24,6 +27,25 @@ enum Group {
   Hidden
 }
 
+enum gearType {
+  Camera
+  Lens
+  Adapter
+  Tripod
+  Gimbal
+  Flash
+  Software
+  Accessories
+  Other
+}
+
+enum ApiType {
+  S3
+  R2
+  B2
+  GCS
+}
+
 model User {
   id         String   @id @default(uuid())
   createdAt  DateTime @default(now())
@@ -31,79 +53,170 @@ model User {
   role       Role     @default(User)
   visibility Group    @default(Followers)
 
-  email     String  @unique
-  password  String
+  // About
+  slug      String?   @unique
   firstName String
   lastName  String?
-  theme     String?
-  language  String?
-  timezone  String?
-  bio       String?
-  website   String?
+  email     String    @unique
+  eVerified DateTime?
+  password  String
+  phone     String?
+  birthday  DateTime?
+  gender    String?
 
-  photos        Photo[]
-  albums        Album[]
-  tags          Tag[]
-  cameras       Camera[]
-  lenses        Lens[]
+  // Preferences
+  theme    String?
+  language String?
+
+  // Profile and social
+  profilePic String?
+  biography  String?
+  website    String?
+  locality   String?
+
+  // Location
+  streetAddress1 String?
+  streetAddress2 String?
+  city           String?
+  state          String?
+  postalCode     String?
+  country        String?
+  timezone       String?
+
+  accounts Account[]
+  sessions Session[]
+
+  permissions   Permission[]
   notifications Notification[]
+
+  photos Photo[]
+  albums Album[]
+  tags   Tag[]
+  gear   Gear[]
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  expires      DateTime
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model Photo {
   id         String   @id @default(uuid())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  visibility Group    @default(Followers)
+  visibility Group    @default(Public)
 
-  store        String
-  fileName     String
-  md5          String  @unique
-  sha1         String  @unique
-  name         String?
-  description  String?
-  aperture     String?
-  shutterSpeed String?
-  focalLength  String?
-  iso          String?
+  // Storage info
+  fileSize Int
+  fileName String
+  newName  String
+  md5      String @unique
+  sha1     String @unique
 
-  user       User?     @relation(fields: [userId], references: [id])
-  userId     String?
-  locationId String?
+  slug        String? @unique
+  name        String?
+  description String?
+  aperture    String?
+  shutter     String?
+  focalLength String?
+  iso         String?
+
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String
+  gear       Gear?     @relation(fields: [gearId], references: [id])
+  gearId     String?
   location   Location? @relation(fields: [locationId], references: [id])
-  cameraId   String?
-  camera     Camera?   @relation(fields: [cameraId], references: [id])
-  lensId     String?
-  lens       Lens?     @relation(fields: [lensId], references: [id])
+  locationId String?
+  bucket     Bucket    @relation(fields: [bucketId], references: [id])
+  bucketId   String
 
-  albums Album[]
-  tags   Tag[]
+  permissions Permission[]
+  albums      Album[]
+  tags        Tag[]
 }
 
 model Album {
   id         String   @id @default(uuid())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  visibility Group    @default(Followers)
+  visibility Group    @default(Public)
 
+  slug        String?
   name        String?
   description String?
 
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
+  permissions Permission[]
+
+  user       User      @relation(fields: [userId], references: [id])
+  userId     String
+  location   Location? @relation(fields: [locationId], references: [id])
+  locationId String?
 
   photos Photo[]
+  tags   Tag[]
 }
 
 model Tag {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  visibility Group    @default(Public)
+
+  slug String @unique
+
+  users   User[]
+  photos  Photo[]
+  Album   Album?  @relation(fields: [albumId], references: [id])
+  albumId String?
+}
+
+model Gear {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name String @unique
+  type   gearType?
+  make   String
+  model  String
+  slug   String    @unique
+  year   Int?
+  colour String?
 
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  // Add fields for description and other info specific to types
+  // For example, sensor size for cameras, focal length for lenses, etc
 
+  users  User[]
   photos Photo[]
 }
 
@@ -112,47 +225,12 @@ model Location {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name         String
-  coordinates  String?
-  locationType String?
+  name   String
+  slug   String  @unique
+  coords String?
 
   photos Photo[]
-}
-
-model Camera {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  make  String
-  model String
-  year  Int?
-  mount String?
-
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
-
-  photos Photo[]
-}
-
-model Lens {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  make           String
-  model          String?
-  year           Int?
-  mount          String?
-  minAperture    Int
-  maxAperture    Int
-  minFocalLength Int
-  maxFocalLength Int
-
-  user   User?   @relation(fields: [userId], references: [id])
-  userId String?
-
-  photos Photo[]
+  albums Album[]
 }
 
 model Notification {
@@ -160,10 +238,48 @@ model Notification {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  type    String
-  message String
-  read    Boolean
+  type    String?
+  message String?
+  read    Boolean?
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
 }
+
+model Permission {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  slug String  @unique
+  name String?
+
+  users  User[]
+  photos Photo[]
+  albums Album[]
+}
+
+model Bucket {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  apiType   String?
+  provider  String?
+  accountId String  @unique
+  endpoint  String?
+  publicUrl String?
+  apiKey    String?
+  apiSecret String?
+
+  photos Photo[]
+}
+
+// TO-DO
+//
+// Add ability to read and write edge config on Vercel and Cloudflare
+// Create a model for profiles/portfolios that act as store fronts?
+// Model for orders, invoices/receipts, shipping info if required
+// Create a reposity or model for API and integration details of other services - maybe edge config?
+// - Stripe, Paypal, Vercel, Cloudflare, Backblaze, AWS, GCP, Databases, etc...
+// Define workflows for image processing - presets, locations, export, etc
