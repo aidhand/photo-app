@@ -1,8 +1,7 @@
 import "@/styles/globals.css";
-import { ReactPortal } from "react";
 
 import { inter, playfair } from "@/lib/fonts";
-import Chakra from "@/components/wrappers/chakra";
+import Header from '@/components/header';
 
 export const metadata = {
   title: {
@@ -24,10 +23,13 @@ export const metadata = {
   },
 };
 
-export default async function RootLayout(props: ReactPortal) {
+export default async function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="font-sans subpixel-antialiased ">{props.children}</body>
+      <body className="font-sans subpixel-antialiased min-h-screen">
+        <Header />
+        {props.children}
+      </body>
     </html>
   );
 }

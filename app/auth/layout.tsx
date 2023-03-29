@@ -1,13 +1,14 @@
 import { ReactElement } from "react";
 
-import { Button } from "@/components/form";
-
-export default function AuthLayout(props: ReactElement) {
+export default function AuthLayout(props: { children: ReactElement }) {
   return (
-    <div className="container min-h-screen mx-auto flex items-center justify-center">
-      <main className="bg-stone-50 p-10 border rounded-lg border-amber-400 text-lg text-stone-700 leading-loose">
+    <div className="container mx-auto flex">
+      <main className="m-6 p-6 bg-stone-50 border rounded-lg border-amber-400 text-stone-700">
         {props.children}
       </main>
+      <aside className="m-6 p-6">
+        tuna is a fish
+      </aside>
     </div>
   );
 }
