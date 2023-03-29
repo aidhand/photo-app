@@ -5,8 +5,8 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 export default function Header() {
   return (
-    <div className="bg-stone-50 border-b border-amber-400 text-stone-700">
-      <nav className="container mx-auto flex align-center justify-between p-4">
+    <div className="bg-stone-50 border-b-2 border-amber-300 border-dashed text-stone-700">
+      <nav className="container mx-auto flex align-center justify-between p-4 font-semibold">
         <Link href="/">Home</Link>
         {/* <Menu id="main-menu">
           <MenuItem href="/upload">Upload</MenuItem>

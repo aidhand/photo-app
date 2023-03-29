@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 
 import { inter, playfair } from "@/lib/fonts";
 import Header from '@/components/header';
+import Footer from "@/components/footer";
 
 export const metadata = {
   title: {
@@ -29,6 +30,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
       <body className="font-sans subpixel-antialiased min-h-screen">
         <Header />
         {props.children}
+        <Footer />
       </body>
     </html>
   );
