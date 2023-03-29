@@ -11,9 +11,21 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'cloudflare-ipfs.com',
+        hostname: "cdn.aidhan.*",
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: "store.aidhan.*",
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: "images.aidhan.*",
+        port: '',
+        pathname: '/cdn-cgi/imagedelivery/Dxsm1yoM7Ap4me0rmkAg9w/**',
       },
     ],
   },
