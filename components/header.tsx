@@ -8,17 +8,17 @@ export default function Header() {
     <div className="bg-stone-50 border-b border-amber-400 text-stone-700">
       <nav className="container mx-auto flex align-center justify-between p-4">
         <Link href="/">Home</Link>
-        <Menu id="main-menu">
+        {/* <Menu id="main-menu">
           <MenuItem href="/upload">Upload</MenuItem>
           <MenuItem href="/discover">Discover</MenuItem>
           <MenuItem href="/learn">Learn</MenuItem>
           <MenuItem href="/search">Search</MenuItem>
-        </Menu>
+        </Menu> */}
         <Menu id="user-menu">
           <MenuItem href="/auth/login">Login</MenuItem>
           <MenuItem href="/auth/register">Register</MenuItem>
-          <MenuItem href="/user/profile">Profile</MenuItem>
-          <MenuItem href="/user/settings">Settings</MenuItem>
+          {/* <MenuItem href="/user/profile">Profile</MenuItem>
+          <MenuItem href="/user/settings">Settings</MenuItem> */}
         </Menu>
       </nav>
     </div>

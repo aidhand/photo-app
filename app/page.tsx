@@ -7,10 +7,10 @@ import Picture from "@/components/picture";
 export default function Home() {
   return (
     <div className="container mx-auto">
-      <h1 className="text-6xl text-slate-800 font-bold font-serif my-20 text-center">
-          Home
-        </h1>
-      <article className="grid grid-cols-8 gap-4 grid-flow-dense text-base text-slate-600">
+      <h1 className="my-24 pb-4 text-6xl text-slate-800 font-bold font-serif text-center">
+        Home
+      </h1>
+      <article className="my-8 grid grid-cols-8 gap-8 grid-flow-dense text-base text-slate-600">
         <div className="col-span-5">
           <p>{faker.lorem.paragraphs(6)}</p>
         </div>
