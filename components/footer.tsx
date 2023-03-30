@@ -9,8 +9,7 @@ export default function Footer() {
             reproduction is subject to relevant licensing terms.
           </div>
           <div className="col-span-2">
-            Photo App is open source software by <br />
-            <a
+            Photo App is open source software by <a
               href="https://aidhan.au"
               className="p-px underline text-emerald-700 decoration-emerald-400 decoration-2 decoration-dashed underline-offset-4 hover:bg-emerald-100 hover:decoration-solid">
               Aidhan Creative
